@@ -1,0 +1,36 @@
+name: Convert WordNet
+
+on:
+  push:
+    paths:
+      - 'wordnet_raw/**'
+
+permissions:
+  contents: write
+
+jobs:
+  convert-wordnet:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+
+      - name: Compile and run converter
+        run: |
+          mkdir -p out
+          javac -d out src/WordNetConverter.java
+          java -cp out WordNetConverter
+
+      - name: Commit results
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add dict/
+          git commit -m "Auto-converted WordNet to dict format" || echo "No changes to commit"
+          git push
