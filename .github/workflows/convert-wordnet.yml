@@ -30,18 +30,25 @@ jobs:
         run: |
           java -cp out WordNetConverter
 
-      - name: Commit converted dictionary in 100-file batches
+      - name: Commit and push one file at a time
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'actions@github.com'
 
-          CHANGED=$(git status --porcelain | grep '^?? dict/' | awk '{print $2}')
-          echo "$CHANGED" > changed.txt
+          # Get list of new or modified files under dict/
+          FILES=$(git status --porcelain | grep -E '^(??| M) dict/' | awk '{print $2}')
 
-          split -l 100 changed.txt batch_
+          for FILE in $FILES; do
+            echo "🔄 Committing $FILE"
+            git add "$FILE"
+            git commit -m "Auto-converted WordNet entry: $FILE" || {
+              echo "⚠️ Skipped (no changes): $FILE"
+              continue
+            }
 
-          for file in batch_*; do
-            xargs -a "$file" git add
-            git commit -m "Batch WordNet dict commit: $file" || echo "No changes in $file"
-            git push
+            echo "📤 Pushing $FILE"
+            git push || {
+              echo "❌ Push failed for $FILE. Stopping."
+              exit 1
+            }
           done
