@@ -14,8 +14,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          persist-credentials: true  # Allows pushing with GitHub token
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -32,27 +30,12 @@ jobs:
         run: |
           java -cp out WordNetConverter
 
-      - name: Commit and push each file individually
+      - name: Compress converted dictionary
         run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'actions@github.com'
+          zip -r dict.zip dict/
 
-          git checkout -B temp-commit-branch
-
-          CHANGED=$(git status --porcelain | grep '^?? dict/' | awk '{print $2}')
-          echo "$CHANGED" > changed.txt
-
-          while IFS= read -r file; do
-            echo "🔄 Committing $file"
-            git add "$file"
-            git commit -m "Auto-converted WordNet entry: $file" || {
-              echo "⚠️ Skipped (no changes): $file"
-              continue
-            }
-
-            echo "📤 Pushing $file"
-            git push origin temp-commit-branch || {
-              echo "❌ Push failed for $file. Stopping."
-              exit 1
-            }
-          done < changed.txt
+      - name: Upload converted dictionary as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: converted-wordnet
+          path: dict.zip
