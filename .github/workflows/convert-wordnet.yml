@@ -3,6 +3,7 @@ name: Convert WordNet
 on:
   push:
     paths:
+      - '.github/workflows/convert-wordnet.yml'
       - 'wordnet_raw/**'
 
 permissions:
