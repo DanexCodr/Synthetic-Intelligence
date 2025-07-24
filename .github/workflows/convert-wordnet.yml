@@ -30,7 +30,7 @@ jobs:
         run: |
           java -cp out WordNetConverter
 
-      - name: Commit converted dictionary in batches
+      - name: Commit converted dictionary in 100-file batches
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'actions@github.com'
@@ -38,9 +38,9 @@ jobs:
           CHANGED=$(git status --porcelain | grep '^?? dict/' | awk '{print $2}')
           echo "$CHANGED" > changed.txt
 
-          split -l 3000 changed.txt changed_batch_
+          split -l 100 changed.txt batch_
 
-          for file in changed_batch_*; do
+          for file in batch_*; do
             xargs -a "$file" git add
             git commit -m "Batch WordNet dict commit: $file" || echo "No changes in $file"
             git push
