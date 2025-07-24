@@ -3,35 +3,37 @@ name: Convert WordNet
 on:
   push:
     paths:
+      - 'wordnet/**'
+      - 'src/**'
       - '.github/workflows/convert-wordnet.yml'
-      - 'wordnet_raw/**'
-
-permissions:
-  contents: write
 
 jobs:
-  convert-wordnet:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
+          distribution: 'temurin'
           java-version: '17'
 
-      - name: Compile and run converter
+      - name: Compile converter
         run: |
           mkdir -p out
           javac -d out src/WordNetConverter.java
+
+      - name: Run converter
+        run: |
           java -cp out WordNetConverter
 
-      - name: Commit results
+      - name: Commit converted dictionary
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
+          git config --global user.name 'github-actions'
+          git config --global user.email 'actions@github.com'
           git add dict/
-          git commit -m "Auto-converted WordNet to dict format" || echo "No changes to commit"
+          git commit -m "Auto-converted WordNet to structured dictionary" || echo "No changes to commit"
           git push
