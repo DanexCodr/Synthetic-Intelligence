@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          persist-credentials: true  # Allows pushing with GitHub token
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -30,25 +32,27 @@ jobs:
         run: |
           java -cp out WordNetConverter
 
-      - name: Commit and push one file at a time
+      - name: Commit and push each file individually
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'actions@github.com'
 
-          # Get list of added or modified files under dict/
-          FILES=$(git status --porcelain | grep '^A\|^ M' | awk '{print $2}' | grep '^dict/')
+          git checkout -B temp-commit-branch
 
-          for FILE in $FILES; do
-            echo "🔄 Committing $FILE"
-            git add "$FILE"
-            git commit -m "Auto-converted WordNet entry: $FILE" || {
-              echo "⚠️ Skipped (no changes): $FILE"
+          CHANGED=$(git status --porcelain | grep '^?? dict/' | awk '{print $2}')
+          echo "$CHANGED" > changed.txt
+
+          while IFS= read -r file; do
+            echo "🔄 Committing $file"
+            git add "$file"
+            git commit -m "Auto-converted WordNet entry: $file" || {
+              echo "⚠️ Skipped (no changes): $file"
               continue
             }
 
-            echo "📤 Pushing $FILE"
-            git push || {
-              echo "❌ Push failed for $FILE. Stopping."
+            echo "📤 Pushing $file"
+            git push origin temp-commit-branch || {
+              echo "❌ Push failed for $file. Stopping."
               exit 1
             }
-          done
+          done < changed.txt
