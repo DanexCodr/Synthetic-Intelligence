@@ -1,0 +1,4 @@
+Definition: a threshold operation in which each operand is 0 or 1
+Example: output is 1 if and only if more than half the operands have the value 1
+Synonyms: threshold_operation, a, threshold, operation, in, which, each, operand, is, or, output, if, and, only, more, than, half, the, operands, have, value
+Category: noun.process

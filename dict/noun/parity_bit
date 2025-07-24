@@ -1,0 +1,4 @@
+Definition: computer science) a bit that is used in an error detection procedure in which a 0 or 1 is added to each group of bits so that it will have either an odd number of 1's or an even number of 1's
+Example: e.g., if the parity is odd then any group of bits that arrives with an even number of 1's must contain an error
+Synonyms: parity, check_bit, bit, noun, cognition, computer_science, c, computer, science, a, that, is, used, in, an, error, detection, procedure, which, or, added, to, each, group, of, bits, so, it, will, have, either, odd, number, s, even, e, g, if, the, then, any, arrives, with, must, contain
+Category: noun.quantity
